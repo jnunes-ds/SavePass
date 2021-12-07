@@ -34,6 +34,7 @@ export function RegisterLoginData() {
   const {
     control,
     handleSubmit,
+    reset,
     formState: {
       errors
     }
@@ -56,7 +57,7 @@ export function RegisterLoginData() {
       
       await AsyncStorage.setItem(dataKey, newLoginArray);
 
-      
+      reset();
 
     } catch (e) {
 
