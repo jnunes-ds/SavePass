@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -21,29 +21,56 @@ interface LoginDataProps {
   password: string;
 }
 
-type LoginListDataProps = LoginDataProps[];
 
 export function Home() {
   const [searchText, setSearchText] = useState('');
-  const [searchListData, setSearchListData] = useState<LoginListDataProps>([]);
-  const [data, setData] = useState<LoginListDataProps>([]);
+  const [searchListData, setSearchListData] = useState<LoginDataProps[]>([]);
+  const [data, setData] = useState<LoginDataProps[]>([]);
 
   async function loadData() {
     const dataKey = '@savepass:logins';
-    // Get asyncStorage data, use setSearchListData and setData
+    try {
+      const response = await AsyncStorage.getItem(dataKey);
+      const tempData = JSON.parse(response);
+
+      setSearchListData(tempData);
+      setData(tempData);
+
+    } catch (err) {
+      const e = new Error(err);
+      console.log(e.message);
+    }
   }
 
   function handleFilterLoginData() {
-    // Filter results inside data, save with setSearchListData
+    if (searchText !== '') {
+      const tempData = data.filter(item => 
+        item.service_name
+          .toUpperCase()
+          .includes(
+            searchText.toUpperCase()
+          ) ||
+        item.email
+          .toUpperCase()
+          .includes(
+            searchText.toUpperCase()
+          )
+      );
+      setSearchListData(tempData);
+    }
   }
 
   function handleChangeInputText(text: string) {
-    // Update searchText value
+    setSearchText(text);
   }
 
   useFocusEffect(useCallback(() => {
     loadData();
   }, []));
+
+  useEffect(() => {
+    handleFilterLoginData();
+  }, [searchText]);
 
   return (
     <>
@@ -60,7 +87,6 @@ export function Home() {
           value={searchText}
           returnKeyType="search"
           onSubmitEditing={handleFilterLoginData}
-
           onSearchButtonPress={handleFilterLoginData}
         />
 
