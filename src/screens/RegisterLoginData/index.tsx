@@ -53,12 +53,12 @@ export function RegisterLoginData() {
       const response = await AsyncStorage.getItem(dataKey);
       const logins = JSON.parse(response);
       const newLoginArray = JSON.stringify(logins ? [...logins, newLoginData] : [newLoginData]);
-      console.log(newLoginArray);
       
       await AsyncStorage.setItem(dataKey, newLoginArray);
 
       reset();
 
+      navigate('Home');
     } catch (e) {
 
       const err = new Error(e);
